@@ -4,11 +4,9 @@
  * Class Task
  *
  * Represents a single task that should be scheduled
- * and ran periodically.
- *
- * @package CodeIgniter\Tasks
+ * and run periodically.
  */
-class Task
+abstract class Task
 {
     use FrequenciesTrait;
 
@@ -38,24 +36,30 @@ class Task
      * If not empty, lists the allowed environments
      * this can run in.
      *
-     * @var array
+     * @var string[]
      */
     protected $environments = [];
 
+    /**
+     * @param mixed $task
+     * @param string $taskType
+     */
     public function __construct($task, string $taskType)
     {
-        $this->task = $task;
+        $this->task     = $task;
         $this->taskType = $taskType;
     }
 
-    public function run()
+    abstract public function run();
+
+    /**
+     * Determines whether this task should be run now
+     * according to its schedule, timezone, and environment.
+     *
+     * @return bool
+     */
+    public function shouldRun(): bool
     {
-
-    }
-
-    public function shouldRun()
-    {
-
     }
 
     /**
@@ -66,6 +70,16 @@ class Task
     public function getTask()
     {
         return $this->task;
+    }
+
+    /**
+     * Returns the saved task type.
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->taskType;
     }
 
     /**
@@ -93,7 +107,8 @@ class Task
     protected function runsInEnvironment(string $environment): bool
     {
         // If nothing specified should run anywhere
-        if (! is_array($this->environments)) {
+        if (empty($this->environments))
+        {
             return true;
         }
 
